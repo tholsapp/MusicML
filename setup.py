@@ -10,7 +10,7 @@ install_requires = [
     ]
 
 tests_require = [
-    'nose',
+    'pytest',
     ]
 
 setup(
