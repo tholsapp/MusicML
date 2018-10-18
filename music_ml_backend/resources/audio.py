@@ -1,4 +1,6 @@
+import numpy as np
 from errno import ENOENT
+from librosa import load
 from os import strerror
 from pathlib import Path
 
@@ -19,4 +21,8 @@ class Audio:
                     message=error_message,
                     errors=[FileNotFoundError(ENOENT, strerror(ENOENT), src)])
         return True
+
+    def get_sample(sample_rate, duration=5.0):
+        x, sr = load(self.src, sample_rate, duration)
+        return np.array(x)
 

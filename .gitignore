@@ -7,3 +7,5 @@ dist/
 music_ml.egg-info
 __pycache__/
 
+music_ml_backend/resources/data/
+
