@@ -20,7 +20,7 @@ def convert_au_to_wav(genre_dirs):
                 # split trianing (70%) and testing (30%)
                 if i < 7:
                     os.system("sox " + genre_dir + '/' + str(f) + " " +
-                            MusicMLConfig.TRAIN_DATA_DIR + '/' + genre_dir + '/' + str(f[:-3]) + ".wav")
+                            MusicMLConfig.TRAIN_GENRES_SRC + '/' + genre_dir + '/' + str(f[:-3]) + ".wav")
                 else:
                      os.system("sox " + genre_dir + '/' + str(f) + " " +
                             MusicMLConfig.TEST_DATA_DIR + '/' + genre_dir + '/' + str(f[:-3]) + ".wav")
@@ -30,10 +30,10 @@ def convert_au_to_wav(genre_dirs):
 def create_data_directory_structure():
 
     os.system("mkdir " + MusicMLConfig.RAW_DATA_DIR)
-    os.system("mkdir " + MusicMLConfig.TRAIN_DATA_DIR)
+    os.system("mkdir " + MusicMLConfig.TRAIN_GENRES_SRC)
     os.system("mkdir " + MusicMLConfig.TEST_DATA_DIR)
 
     for genre_name in MusicMLConfig.GENRE_NAMES:
-        os.system("mkdir " + MusicMLConfig.TRAIN_DATA_DIR + '/' + genre_name)
+        os.system("mkdir " + MusicMLConfig.TRAIN_GENRES_SRC + '/' + genre_name)
         os.system("mkdir " + MusicMLConfig.TEST_DATA_DIR + '/' + genre_name)
 
