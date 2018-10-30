@@ -7,11 +7,13 @@ with open(os.path.abspath('README.md')) as fh:
     README = fh.read()
 
 install_requires = [
-    ]
+        'Flask>=0.2',
+        'SQLAlchemy>=0.6',
+        ]
 
 tests_require = [
-    'pytest',
-    ]
+        'pytest',
+        ]
 
 setup(
     name='music-ml',

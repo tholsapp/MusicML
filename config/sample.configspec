@@ -1,2 +1,2 @@
 [sample]
-  api_key=string(default=bar)
+api_key=string(default=bar)
