@@ -21,7 +21,8 @@ from sklearn.svm import SVC
 
 from config import MusicMLConfig
 
-from music_ml_backend.ml.extract_features import extract_normalized_features
+from music_ml_backend.ml.extract_features import extract_normalized_features, \
+        flask_extract_features
 from music_ml_backend.ml.test_model import test_knn_model, test_rft_model, \
         test_svc_model, test_mlp_model
 from music_ml_backend.ml.train_model import train_model
@@ -29,6 +30,22 @@ from music_ml_backend.util.ml_util import save_features, save_model
 from music_ml_backend.util.ml_util import read_features
 
 log = logging.getLogger(__name__)
+
+
+def classify(uploaded_filename, label):
+    src = MusicMLConfig.UPLOAD_DST + '/' + uploaded_filename
+    features = flask_extract_features(src, label)
+
+    features = features.drop(columns=['GENRE'])
+
+    for x in features:
+        print(str(x) + " " + str(features[x]))
+
+    svm = joblib.load(MusicMLConfig.FLASK_MODEL_SRC)
+    pred = svm.predict(features)
+    print(pred)
+
+    return pred[0]
 
 
 def extract_and_save_features(feature_src, data_src):

@@ -36,9 +36,20 @@ def runserver(*args, **kwargs):
 
 
 @manager.command
-def setup():
+def flask_setup():
     # convert the raw data into a format we can use
     convert_au_to_wav()
+
+    # extract all features from data
+    extract_and_save_features(
+            MusicMLConfig.FLASK_FEATURE_DATASET_SRC,
+            MusicMLConfig.FORMATTED_DATA_SRC
+            )
+
+    train_and_save_model(
+            MusicMLConfig.FLASK_MODEL_SRC,
+            MusicMLConfig.FLASK_FEATURE_DATASET_SRC
+            )
 
 
 @manager.command
@@ -55,10 +66,10 @@ def train_model():
 
 @manager.command
 def test():
-    #test_knn(MusicMLConfig.FEATURE_DATASET_SRC)
+    test_knn(MusicMLConfig.FEATURE_DATASET_SRC)
     test_rft(MusicMLConfig.FEATURE_DATASET_SRC)
-    #test_svc(MusicMLConfig.FEATURE_DATASET_SRC)
-    #test_mlp(MusicMLConfig.FEATURE_DATASET_SRC)
+    test_svc(MusicMLConfig.FEATURE_DATASET_SRC)
+    test_mlp(MusicMLConfig.FEATURE_DATASET_SRC)
 
 
 if __name__ == "__main__":

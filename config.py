@@ -15,6 +15,11 @@ class MusicMLConfig:
     FEATURE_DATASET_SRC = ROOT_SRC + \
             "/music_ml_backend/ml/data/audio_features.csv"
 
+    FLASK_FEATURE_DATASET_SRC = FEATURE_DATASET_SRC
+
+    FLASK_MODEL_SRC =  ROOT_SRC + \
+            "/music_ml_backend/ml/data/flask_model.pkl"
+
     KNN_MODEL_SRC = ROOT_SRC + \
             "/music_ml_backend/ml/data/knn_model.pkl"
 
@@ -27,7 +32,7 @@ class MusicMLConfig:
     MLP_MODEL_SRC = ROOT_SRC + \
             "/music_ml_backend/ml/data/mlp_model.pkl"
 
-    
+
     # MUSICML SEETINGS
 
     GENRE_NAMES = [

@@ -1,11 +1,12 @@
 import os
 
 from flask import Flask, request, redirect, url_for, render_template, \
-        send_from_directory
+        flash, send_from_directory
 from flask_bootstrap import Bootstrap
 from werkzeug.utils import secure_filename
 
 from config import MusicMLConfig
+from music_ml_backend.ml import music_ml
 
 
 ALLOWED_EXTENSIONS = set(['wav'])
@@ -22,7 +23,7 @@ def init_webapp():
 
     # Set upload location
     app.config['UPLOAD_FOLDER'] = MusicMLConfig.UPLOAD_DST
-
+    app.config['SECRET_KEY'] = 'abc'
     return app
 
 
@@ -38,21 +39,27 @@ def index():
         # submit a empty part without filename
         if file.filename == '':
             flash('No selected file')
-            return redirect(request.url)
+            return render_template('idex.html')
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
-            return redirect(url_for('uploaded_file', filename=filename))
+            actual_genre = request.form['genres']
+            return redirect(url_for('classify',
+                filename=filename,
+                actual_genre=actual_genre))
 
     return render_template('index.html')
 
-#@app.route('/upload/', methods=['GET', 'POST'])
-#def upload():
-    #pass
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route('/classify/<filename>&<actual_genre>')
+def classify(filename, actual_genre):
+    # classify song
+    predicted_genre = music_ml.classify(filename, actual_genre)
+
+    return render_template('classifier.html',
+            filename=filename,
+            actual_genre=actual_genre,
+            predicted_genre=predicted_genre)
 
 
 def allowed_file(filename):
