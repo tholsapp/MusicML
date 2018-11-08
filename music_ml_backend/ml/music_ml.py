@@ -1,30 +1,55 @@
-import logging
-import joblib
 
+import joblib
+import itertools
+import logging
+import numpy as np
+import pandas as pd
 from pandas import DataFrame
+
+
+# required for my system
+import matplotlib
+matplotlib.use('TkAgg')
+import matplotlib.pyplot as plt
+
+import sklearn
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neural_network import MLPClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.svm import SVC
 
 from config import MusicMLConfig
 
-from music_ml_backend.util.ml_util import save_features, save_model
 from music_ml_backend.ml.extract_features import extract_normalized_features, \
-        extract_normalized_featuress
+        flask_extract_features
+from music_ml_backend.ml.test_model import test_knn_model, test_rft_model, \
+        test_svc_model, test_mlp_model
 from music_ml_backend.ml.train_model import train_model
-import itertools
-import matplotlib.pyplot as plt
-import sklearn
-from sklearn.neighbors import KNeighborsClassifier
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.neural_network import MLPClassifier
-from sklearn.svm import SVC
-
+from music_ml_backend.util.ml_util import save_features, save_model
 from music_ml_backend.util.ml_util import read_features
-import numpy as np
 
 log = logging.getLogger(__name__)
 
 
+def classify(uploaded_filename, label):
+    src = MusicMLConfig.UPLOAD_DST + '/' + uploaded_filename
+    features = flask_extract_features(src, label)
+
+    features = features.drop(columns=['GENRE'])
+
+    for x in features:
+        print(str(x) + " " + str(features[x]))
+
+    svm = joblib.load(MusicMLConfig.FLASK_MODEL_SRC)
+    pred = svm.predict(features)
+    print(pred)
+
+    return pred[0]
+
+
 def extract_and_save_features(feature_src, data_src):
-    save_features(feature_src, _extract_features(data_src))
+    save_features(feature_src, extract_normalized_features(data_src))
     log.info("Extracted and saved features successfully!")
 
 
@@ -48,96 +73,18 @@ def test_model(model_src, data_src):
     print("----------------------------------------------------------------------------------------")
 
 
-def test_knn_model(train_src, test_src):
-
-    np_dataset = np.array(read_features(train_src))
-    test_np_dataset = np.array(read_features(test_src))
-
-    number_of_rows, number_of_cols = np_dataset.shape
-
-    train_x = np_dataset[:, :number_of_cols - 1]
-    train_y = np_dataset[:, number_of_cols - 1]
-
-    test_x = test_np_dataset[:, :number_of_cols - 1]
-    test_y = test_np_dataset[:, number_of_cols - 1]
-
-    results_knn=[]
-    for i in range(1,11):
-        knn=KNeighborsClassifier(n_neighbors=i)
-        knn.fit(train_x,train_y)
-        results_knn.append(knn.score(test_x,test_y))
-
-    max_accuracy_knn=max(results_knn)
-    best_k=1+results_knn.index(max(results_knn))
-    print("Max Accuracy is {:.3f} on test dataset with {} neighbors.\n".format(max_accuracy_knn,best_k))
-
-    plt.plot(np.arange(1,11),results_knn)
-    plt.xlabel("n Neighbors")
-    plt.ylabel("Accuracy")
+def test_knn(feature_src):
+    test_knn_model(feature_src)
 
 
-    knn=KNeighborsClassifier(n_neighbors=best_k)
-    knn.fit(train_x,train_y)
-    #return knn
-    knn=KNeighborsClassifier(n_neighbors=best_k)
-    knn.fit(train_x,train_y)
-    print("Training Score: {:.3f}".format(knn.score(train_x,train_y)))
-    print("Test score: {:.3f}".format(knn.score(test_x,test_y)))
-
-    plot_cnf(knn,test_x,test_y,MusicMLConfig.GENRE_NAMES)
-
-    svm=SVC(C=100,gamma=0.08)
-    svm.fit(train_x,train_y)
-    print("Training Score: {:.3f}".format(svm.score(train_x,train_y)))
-    print("Test score: {:.3f}".format(svm.score(test_x,test_y)))
-
-    plot_cnf(svm,test_x,test_y,MusicMLConfig.GENRE_NAMES)
+def test_rft(feature_src):
+    test_rft_model(feature_src)
 
 
-    neural=MLPClassifier(max_iter=400,random_state=2,hidden_layer_sizes=[40,40])
-    neural.fit(train_x,train_y)
-    print("Training Score: {:.3f}".format(neural.score(train_x,train_y)))
-    print("Test score: {:.3f}".format(neural.score(test_x,test_y)))
-
-    plot_cnf(neural,test_x,test_y,MusicMLConfig.GENRE_NAMES)
+def test_svc(feature_src):
+    test_svc_model(feature_src)
 
 
-def plot_cnf(model,dataset_x,dataset_y,GENRES):
-    true_y=dataset_y
-    true_x=dataset_x
-    pred=model.predict(true_x)
-
-    print("---------------PERFORMANCE ANALYSIS FOR THE MODEL----------------\n")
-
-    print("Real Test dataset labels: \n{}\n".format(true_y))
-    print("Predicted Test dataset labels: \n{}".format(pred))
-
-    cnf_matrix=sklearn.metrics.confusion_matrix(true_y,pred)
-    plt.figure()
-    a=confusion_matrix(cnf_matrix,classes=GENRES,title='Confusion matrix')
-
-
-def confusion_matrix(cm, classes,
-                          title='Confusion matrix',
-                          cmap=plt.cm.Blues):
-
-    plt.imshow(cm, interpolation='nearest', cmap=cmap)
-    plt.title(title)
-    plt.colorbar()
-    tick_marks = np.arange(len(classes))
-    plt.xticks(tick_marks, classes, rotation=45)
-    plt.yticks(tick_marks, classes)
-
-    thresh = cm.max() / 2.
-    for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
-        plt.text(j, i, cm[i, j],
-                 horizontalalignment="center",
-                 color="white" if cm[i, j] > thresh else "black")
-
-    plt.tight_layout()
-    plt.ylabel('True label')
-    plt.xlabel('Predicted label')
-
-def _extract_features(src):
-    return extract_normalized_features(src)
+def test_mlp(feature_src):
+    test_mlp_model(feature_src)
 

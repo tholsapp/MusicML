@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+
+
+{% block content %}
+<div class="page-header align-center">
+
+    <nav class="navbar navbar-default">
+        <div class="navbar-header">
+            <a class="navbar-brand" href="{{ url_for('index') }}"> Home </a>
+        </div>
+    </nav>
+
+    <h1> MusicML : Song Genre Classifier </h1>
+
+    <h2>Song Content</h2>
+    <div class="list-group">
+        <a class="list-group-item">
+            <h4 class="list-group-item-heading">Filename</h4>
+            <p class="list-group-item-text">{{ filename }}</p>
+        </a>
+        {% if actual_genre == predicted_genre %}
+        <a class="list-group-item list-group-item-success">
+            <h4 class="list-group-item-heading">Actual Song Genre</h4>
+            <p class="list-group-item-text">{{ actual_genre }}</p>
+        </a>
+        <a class="list-group-item list-group-item-success">
+            <h4 class="list-group-item-heading">Predicted Song Genre</h4>
+            <p class="list-group-item-text">{{ predicted_genre }}</p>
+        </a>
+        {% else %}
+        <a class="list-group-item list-group-item-danger">
+            <h4 class="list-group-item-heading">Actual Song Genre</h4>
+            <p class="list-group-item-text">{{ actual_genre }}</p>
+        </a>
+        <a class="list-group-item list-group-item-danger">
+            <h4 class="list-group-item-heading">Predicted Song Genre</h4>
+            <p class="list-group-item-text">{{ predicted_genre }}</p>
+        </a>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

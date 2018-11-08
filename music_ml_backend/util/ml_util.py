@@ -5,7 +5,6 @@ import pandas as pd
 log = logging.getLogger(__name__)
 
 
-
 def read_features(path):
     return pd.read_csv(path, index_col=False)
 

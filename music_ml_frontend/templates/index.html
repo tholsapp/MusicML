@@ -1,15 +1,44 @@
 {% extends "layout.html" %}
 
 {% block content %}
-<div class="alert alert-success">
-<button type="button" class="close" data-dismiss="alert">&times;</button>
-<strong>Yay!</strong> Everything looks like it is working.
+
+<div class="alert alert-success alert-dismissible">
+    <a class="close" data-dismiss="alert" aria-label="close">&times;</a>
+    <strong>Yay!</strong> Looks like everything is working.
 </div>
 
-<h1>
-Hello, world!
-</h1>
+<div class="text-center">
+    <div class="page-header">
+        <h1> Welcome to MusicML </h1>
+    </div>
 
-<b>I was rendered using Jinja2 templates!</b>
+    <h2> Upload an audo file: </h2>
 
+    <form  method="post" enctype="multipart/form-data" >
+        <input type="radio" name="genres" id="blues" value="blues"/>
+        <label for="blues">Blues</label>
+        <input type="radio"  name="genres" id="classical" value="classical"/>
+        <label for="classical">Classical</label>
+        <input type="radio"  name="genres" id="country" value="country"/>
+        <label for="country">Country</label>
+        <input type="radio"  name="genres" id="disco" value="disco"/>
+        <label for="disco">Disco</label>
+        <input type="radio"  name="genres" id="hiphop" value="hiphop"/>
+        <label for="hiphop">HipHop</label>
+        <br>
+        <input type="radio"  name="genres" id="jazz" value="jazz"/>
+        <label for="jazz">Jazz</label>
+        <input type="radio"  name="genres" id="metal" value="metal"/>
+        <label for="metal">Metal</label>
+        <input type="radio"  name="genres" id="pop" value="pop"/>
+        <label for="pop">Pop</label>
+        <input type="radio"  name="genres" id="raggae" value="raggae"/>
+        <label for="raggae">Raggae</label>
+        <input type="radio"  name="genres" id="rock" value="rock"/>
+        <label for="rock">Rock</label>
+
+        <input type="file" name="file"/>
+        <input type="submit" value="Upload File" />
+    </form>
+</div>
 {% endblock %}

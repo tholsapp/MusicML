@@ -5,9 +5,41 @@ import pandas as pd
 import sklearn
 
 from config import MusicMLConfig
+from music_ml_backend.resources.audio import Audio
 from music_ml_backend.resources.audio_manager import AudioManager
+from music_ml_backend.util import ml_util
 
 log = logging.getLogger(__name__)
+
+def flask_extract_features(
+        file_src,
+        label,
+        sample_rate=MusicMLConfig.SAMPLE_RATE,
+        frame_size=MusicMLConfig.FRAME_SIZE,
+        hop_size=MusicMLConfig.HOP_SIZE):
+
+    audio = Audio(file_src)
+
+
+    sample, sr = librosa.load(audio.src, offset=5.0,
+            sr=sample_rate, duration=5.0)
+
+    test_features = _extract_features(
+            sample, sample_rate, frame_size, hop_size)
+
+    feature_dataset = ml_util.read_features(MusicMLConfig.FLASK_FEATURE_DATASET_SRC)
+    feature_dataset = feature_dataset.drop(columns=['GENRE'])
+    feature_dataset = feature_dataset.values
+
+    np_dataset = np.vstack((feature_dataset, np.array(test_features)))
+
+    np_normalized_dataset = _normalize_dataset(np_dataset)
+
+    feature_df = pd.DataFrame(np_normalized_dataset, columns=MusicMLConfig.FEATURE_NAMES)
+    feature_df = feature_df[-1:]
+    feature_df['GENRE'] = label;
+
+    return feature_df
 
 
 def extract_normalized_features(
@@ -22,13 +54,15 @@ def extract_normalized_features(
     is_created = False
 
     for genre in audio_genre_map:
-        print(genre)
         for audio in audio_genre_map[genre]:
             # gets sample of this audio src
             labels.append(genre)
-            sample, sr = librosa.load(audio.src, sr=sample_rate, duration=5.0)
+            sample, sr = librosa.load(audio.src, offset=5.0,
+                    sr=sample_rate, duration=5.0)
+            log.info(f"Extracing features from {audio.src!r}")
             features = _extract_features(
                     sample, sample_rate, frame_size, hop_size)
+            # needed since we are saving to a csv file
             if not is_created:
                 np_dataset = np.array(features)
                 is_created = True
@@ -37,41 +71,8 @@ def extract_normalized_features(
 
     np_normalized_dataset = _normalize_dataset(np_dataset)
 
-    feature_df = pd.DataFrame(np_dataset, columns=MusicMLConfig.FEATURE_NAMES)
-
-    feature_df[MusicMLConfig.LABEL_NAME] = labels;
-
-    return feature_df
-
-
-def extract_normalized_featuress(
-        genres_src,
-        sample_rate=MusicMLConfig.SAMPLE_RATE,
-        frame_size=MusicMLConfig.FRAME_SIZE,
-        hop_size=MusicMLConfig.HOP_SIZE):
-
-    audio_genre_map = AudioManager.get_genre_map(genres_src);
-    log.info("Beginning to extract features")
-    labels = []
-    is_created = False
-
-    for genre in audio_genre_map:
-        print(genre)
-        for audio in audio_genre_map[genre]:
-            # gets sample of this audio src
-            labels.append(genre)
-            sample, sr = librosa.load(audio.src, sr=sample_rate, duration=20.0)
-            features = _extract_features(
-                    sample, sample_rate, frame_size, hop_size)
-            if not is_created:
-                np_dataset = np.array(features)
-                is_created = True
-            elif is_created:
-                np_dataset = np.vstack((np_dataset, features))
-
-    np_normalized_dataset = _normalize_dataset(np_dataset)
-
-    feature_df = pd.DataFrame(np_dataset, columns=MusicMLConfig.FEATURE_NAMES)
+    feature_df = pd.DataFrame(np_normalized_dataset, columns=MusicMLConfig.FEATURE_NAMES)
+    feature_df['GENRE'] = labels;
 
     return feature_df
 
@@ -85,27 +86,21 @@ def _extract_features(sample, sample_rate, frame_size, hop_size):
     param step_size : number of samples between successive chroma frames
     """
 
-    log.info("Extracting zero crossing rate")
     zero_crossing_rate = librosa.feature.zero_crossing_rate(
             y=sample, frame_length=frame_size, hop_length=hop_size)
 
-    log.info("Extracting spectral centroid")
     spectral_centroid = librosa.feature.spectral_centroid(
             y=sample, sr=sample_rate, n_fft=frame_size, hop_length=hop_size)
 
-    log.info("Extracting spectral contrast")
     spectral_contrast = librosa.feature.spectral_contrast(
             y=sample, sr=sample_rate, n_fft=frame_size, hop_length=hop_size)
 
-    log.info("Extracting spectral bandwidth")
     spectral_bandwidth = librosa.feature.spectral_bandwidth(
             y=sample, sr=sample_rate, n_fft=frame_size, hop_length=hop_size)
 
-    log.info("Extracting spectral rolloff")
     spectral_rolloff = librosa.feature.spectral_rolloff(
             y=sample, sr=sample_rate, n_fft=frame_size, hop_length=hop_size)
 
-    log.info("Extracting mel-frequency cepstrum")
     mfccs = librosa.feature.mfcc(
                 y=sample, sr=sample_rate, n_fft=frame_size, hop_length=hop_size)
 
@@ -129,8 +124,7 @@ def _extract_features(sample, sample_rate, frame_size, hop_size):
     return ret_lst
 
 def _normalize_dataset(np_dataset):
-    log.info("Normalizing the data")
-    # range = (-1, 1) since audio is a wave form
+    log.info("Normalizing audio dataset")
     min_max_scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(-1, 1))
     return min_max_scaler.fit_transform(np_dataset)
 

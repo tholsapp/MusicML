@@ -1,19 +1,39 @@
 
 class MusicMLConfig:
 
-    ROOT_DIR = "/Users/tholsapp/workstation/sjsu/cs161/MusicML"
-    RAW_DATA_DIR = ROOT_DIR + "/music_ml_backend/resources/data/raw/genres"
-    TRAIN_GENRES_SRC = ROOT_DIR + "/music_ml_backend/resources/data/training"
-    TEST_DATA_DIR = ROOT_DIR + "/music_ml_backend/resources/data/test"
+    # PATHS
 
-    FEATURE_DATASET_SRC = ROOT_DIR + \
-            "/music_ml_backend/ml/data/training_features.csv"
+    # MUST CHANGE WHEN EXPORTED
+    ROOT_SRC = "/Users/tholsapp/sjsu/MusicML"
 
-    TEST_FEATURES_SRC = ROOT_DIR + \
-            "/music_ml_backend/ml/data/test_features.csv"
+    UPLOAD_DST = ROOT_SRC + "/music_ml_backend/resources/data/upload"
 
-    MODEL_SRC = ROOT_DIR + \
-            "/music_ml_backend/ml/data/model.pkl"
+    RAW_DATA_SRC = ROOT_SRC + \
+            "/music_ml_backend/resources/data/raw/genres"
+    FORMATTED_DATA_SRC = ROOT_SRC + \
+            "/music_ml_backend/resources/data/formatted/genres"
+    FEATURE_DATASET_SRC = ROOT_SRC + \
+            "/music_ml_backend/ml/data/audio_features.csv"
+
+    FLASK_FEATURE_DATASET_SRC = FEATURE_DATASET_SRC
+
+    FLASK_MODEL_SRC =  ROOT_SRC + \
+            "/music_ml_backend/ml/data/flask_model.pkl"
+
+    KNN_MODEL_SRC = ROOT_SRC + \
+            "/music_ml_backend/ml/data/knn_model.pkl"
+
+    RFT_MODEL_SRC = ROOT_SRC + \
+            "/music_ml_backend/ml/data/rft_model.pkl"
+
+    SVC_MODEL_SRC = ROOT_SRC + \
+            "/music_ml_backend/ml/data/svc_model.pkl"
+
+    MLP_MODEL_SRC = ROOT_SRC + \
+            "/music_ml_backend/ml/data/mlp_model.pkl"
+
+
+    # MUSICML SEETINGS
 
     GENRE_NAMES = [
             'blues',
@@ -39,7 +59,7 @@ class MusicMLConfig:
             'MEAN_SPEC_CENTROID_', 'STD_SPEC_CENTROID_',
             'MEAN_SPEC_CONTRAST_', 'STD_SPEC_CONTRAST_',
             'MEAN_SPEC_BANDWIDTH_', 'STD_SPEC_BANDWIDTH_',
-            'MEAN_SPEC_ROLL_OF_', 'STD_SPEC_ROLL_OF_',
+            'MEAN_SPEC_ROLL_OFF', 'STD_SPEC_ROLL_OFF',
             'MEAN_MFCC_1', 'STD_MFCC_1',
             'MEAN_MFCC_2', 'STD_MFCC_2',
             'MEAN_MFCC_3', 'STD_MFCC_3',

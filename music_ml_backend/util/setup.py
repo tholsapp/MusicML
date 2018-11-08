@@ -1,39 +1,39 @@
+import logging
 import os
 import sys
 
 from config import MusicMLConfig
 
+log = logging.getLogger(__name__)
 
-def convert_au_to_wav(genre_dirs):
-    os.chdir(genre_dirs)  # change to this directory
 
-    i = 0
+def convert_au_to_wav():
+    os.chdir(MusicMLConfig.RAW_DATA_SRC)  # change to raw data directory
 
+    log.info("Initializing Data Conversion")
     # for each genre with au audio format
-    for genre_dir in os.listdir(genre_dirs):
+    for genre_dir in os.listdir(MusicMLConfig.RAW_DATA_SRC):
+        print(genre_dir)
         if(os.path.isdir(genre_dir)):
             # each au audio file within this directory
+            new_directory = MusicMLConfig.FORMATTED_DATA_SRC + '/' + genre_dir
+            if not os.path.isdir(new_directory):
+                log.info(f"Creating directory {new_directory!r}")
+                os.system(f"mkdir {new_directory!r}")
+            else:
+                log.info(f"Directory {new_directory!r} already exists")
             for f in os.listdir(genre_dir):
-                if i == 10:
-                    i = 0
+                orig_file = str(f)
+                new_file = str(f[:-3]) + ".wav"
+                new_file_src = MusicMLConfig.FORMATTED_DATA_SRC + '/' + \
+                        genre_dir + '/' + new_file
 
-                # split trianing (70%) and testing (30%)
-                if i < 7:
-                    os.system("sox " + genre_dir + '/' + str(f) + " " +
-                            MusicMLConfig.TRAIN_GENRES_SRC + '/' + genre_dir + '/' + str(f[:-3]) + ".wav")
+                if not os.path.exists(new_file_src):
+                    sox_cmd = genre_dir + '/' + orig_file + " " + new_file_src
+
+                    # convert audio file and save
+                    log.info(f"Converting {orig_file!r} to {new_file!r}")
+                    os.system(f"sox {sox_cmd}")
                 else:
-                     os.system("sox " + genre_dir + '/' + str(f) + " " +
-                            MusicMLConfig.TEST_DATA_DIR + '/' + genre_dir + '/' + str(f[:-3]) + ".wav")
-                i = i + 1
-
-
-def create_data_directory_structure():
-
-    os.system("mkdir " + MusicMLConfig.RAW_DATA_DIR)
-    os.system("mkdir " + MusicMLConfig.TRAIN_GENRES_SRC)
-    os.system("mkdir " + MusicMLConfig.TEST_DATA_DIR)
-
-    for genre_name in MusicMLConfig.GENRE_NAMES:
-        os.system("mkdir " + MusicMLConfig.TRAIN_GENRES_SRC + '/' + genre_name)
-        os.system("mkdir " + MusicMLConfig.TEST_DATA_DIR + '/' + genre_name)
+                    log.info(f"{new_file!r} already exists")
 

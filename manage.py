@@ -9,14 +9,14 @@ import logging
 
 from config import MusicMLConfig
 from music_ml_backend.ml.music_ml import \
-        test_knn_model, extract_and_save_features, test_model, train_and_save_model
-from music_ml_backend.util.setup import convert_au_to_wav, \
-        create_data_directory_structure
-from music_ml_frontend import app, init_webapp
+        test_knn, test_rft, test_svc, test_mlp, \
+        extract_and_save_features, test_model, train_and_save_model
+from music_ml_backend.util.setup import convert_au_to_wav
+from music_ml_frontend.music_ml import app, init_webapp
 
 
 logging.basicConfig(level=logging.INFO)
-log = logging.getLogger(__name__)
+music_ml_log = logging.getLogger(__name__)
 
 manager = Manager(app)
 
@@ -28,7 +28,7 @@ def runserver(*args, **kwargs):
     Overrides default `runserver` to init webapp before running.
 
     """
-    log.info("initializing web server")
+    music_ml_log.info("initializing web server")
     app = init_webapp()
     config = ConfigObj('config/sample.config', configspec='config/sample.configspec')
     app.config_obj = config
@@ -36,53 +36,41 @@ def runserver(*args, **kwargs):
 
 
 @manager.command
-def setup():
-    # set up directory structure for project
-    create_data_directory_structure()
+def flask_setup():
     # convert the raw data into a format we can use
-    # NOTE: system requires `sox` command
-    convert_au_to_wav(MusicMLConfig.RAW_DATA_DIR)
+    convert_au_to_wav()
+
+    # extract all features from data
+    extract_and_save_features(
+            MusicMLConfig.FLASK_FEATURE_DATASET_SRC,
+            MusicMLConfig.FORMATTED_DATA_SRC
+            )
+
+    train_and_save_model(
+            MusicMLConfig.FLASK_MODEL_SRC,
+            MusicMLConfig.FLASK_FEATURE_DATASET_SRC
+            )
 
 
 @manager.command
 def train_model():
-    # set up directory structure for project
-    #create_data_directory_structure()
     # convert the raw data into a format we can use
-    # NOTE: system requires `sox` command
-    #convert_au_to_wav(MusicMLConfig.RAW_DATA_DIR)
-    #
-    # extract training features
+    convert_au_to_wav()
+
+    # extract all features from data
     extract_and_save_features(
             MusicMLConfig.FEATURE_DATASET_SRC,
-            MusicMLConfig.TRAIN_GENRES_SRC
-            )
-
-    # extract testing features
-    extract_and_save_features(
-            MusicMLConfig.TEST_FEATURES_SRC,
-            MusicMLConfig.TEST_DATA_DIR
-            )
-
-    train_and_save_model(
-            MusicMLConfig.MODEL_SRC,
-            MusicMLConfig.FEATURE_DATASET_SRC
-            )
-
-@manager.command
-def t():
-    test_knn_model(
-            MusicMLConfig.FEATURE_DATASET_SRC,
-            MusicMLConfig.TEST_FEATURES_SRC
+            MusicMLConfig.FORMATTED_DATA_SRC
             )
 
 
 @manager.command
 def test():
-    test_model(
-            MusicMLConfig.MODEL_SRC,
-            MusicMLConfig.TEST_DATA_DIR
-            )
+    test_knn(MusicMLConfig.FEATURE_DATASET_SRC)
+    test_rft(MusicMLConfig.FEATURE_DATASET_SRC)
+    test_svc(MusicMLConfig.FEATURE_DATASET_SRC)
+    test_mlp(MusicMLConfig.FEATURE_DATASET_SRC)
+
 
 if __name__ == "__main__":
     manager.run()

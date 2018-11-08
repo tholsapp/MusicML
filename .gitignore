@@ -7,5 +7,10 @@ dist/
 music_ml.egg-info
 __pycache__/
 
-music_ml_backend/resources/data/
 
+*.wav
+*.csv
+*.pkl
+
+music_ml_backend/resources/data/raw/genres/*
+music_ml_backend/resources/data/formatted/genres*
