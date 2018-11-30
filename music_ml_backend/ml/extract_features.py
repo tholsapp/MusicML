@@ -71,6 +71,7 @@ def extract_normalized_features(
 
     np_normalized_dataset = _normalize_dataset(np_dataset)
 
+    print(np_normalized_dataset)
     feature_df = pd.DataFrame(np_normalized_dataset, columns=MusicMLConfig.FEATURE_NAMES)
     feature_df['GENRE'] = labels;
 
@@ -79,7 +80,7 @@ def extract_normalized_features(
 
 def _extract_features(sample, sample_rate, frame_size, hop_size):
     """
-    param ats : audio time series
+    param sample : audio time series
     param sample_rate : number > 0
                         audio sampling rate of `y`
     param frame_size : Length of the frame
@@ -104,6 +105,14 @@ def _extract_features(sample, sample_rate, frame_size, hop_size):
     mfccs = librosa.feature.mfcc(
                 y=sample, sr=sample_rate, n_fft=frame_size, hop_length=hop_size)
 
+    #print(f"Zero Crossing Rate : {zero_crossing_rate}")
+    #print(f"Spectral Centroid  : {spectral_centroid}")
+    #print(f"Spectral Contrast  : {spectral_contrast}")
+    #print(f"Spectral Bandwidth : {spectral_bandwidth}")
+    #print(f"spectral_rolloff   : {spectral_rolloff}")
+    #print(f"mfccs              : {mfccs}")
+
+
     ret_lst = [
             np.mean(zero_crossing_rate),
             np.std(zero_crossing_rate),
@@ -121,10 +130,11 @@ def _extract_features(sample, sample_rate, frame_size, hop_size):
         ret_lst.append(np.mean(mfccs[i + 1, :]))
         ret_lst.append(np.std(mfccs[i + 1, :]))
 
+
     return ret_lst
 
 def _normalize_dataset(np_dataset):
     log.info("Normalizing audio dataset")
-    min_max_scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(-1, 1))
+    min_max_scaler = sklearn.preprocessing.MinMaxScaler(feature_range=(0, 1))
     return min_max_scaler.fit_transform(np_dataset)
 

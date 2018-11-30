@@ -17,7 +17,6 @@ class AudioManager:
     @classmethod
     def get(cls, fn, fdir):
         try:
-            log.info(f"Accessing file {fn!r}")
             return Audio(fdir + "/" + fn)
         except FileNotFoundError as e:
             error_message = f"file {fn!r} not found in directory {fdir!r}"
@@ -27,7 +26,7 @@ class AudioManager:
     def get_genre_map(cls, genres_src):
         genre_map = {}
 
-        log.info("Initializing dictionary: mapping genre to audio files")
+        log.info(f"get_genre_map : {genres_src}")
         for genre_name in MusicMLConfig.GENRE_NAMES:
             current_src = genres_src + "/" + genre_name
             os.chdir(current_src)

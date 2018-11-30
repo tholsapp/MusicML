@@ -51,7 +51,7 @@ def test_knn_model(feature_src):
     log.info("Traning and Testing KNN Model")
 
     training_dataset, testing_dataset, number_of_cols  = \
-            split_dataset(feature_src, 0.85, 2)
+            split_dataset(feature_src, 0.20, 2)
 
     train_x = training_dataset[:,:number_of_cols-1]
     train_y = training_dataset[:,number_of_cols-1]
@@ -120,7 +120,7 @@ def test_svc_model(feature_src):
     log.info("Training and Testing SVC Model")
 
     training_dataset, testing_dataset, number_of_cols = \
-            split_dataset(feature_src, 0.30, 2)
+            split_dataset(feature_src, 0.20, 2)
 
     train_x = training_dataset[:,:number_of_cols-1]
     train_y = training_dataset[:,number_of_cols-1]
@@ -141,7 +141,7 @@ def test_mlp_model(feature_src):
     log.info("Training and Testing MLP Model")
 
     training_dataset, testing_dataset, number_of_cols = \
-            split_dataset(feature_src, 0.30, 2)
+            split_dataset(feature_src, 0.20, 2)
 
     train_x = training_dataset[:,:number_of_cols-1]
     train_y = training_dataset[:,number_of_cols-1]
@@ -170,9 +170,9 @@ def test_model(model, dataset_x, dataset_y):
     print(f"Expected dataset labels: \n{true_y}\n")
     print(f"Predicted Test dataset labels: \n{pred}\n\n")
 
-    matrix=sklearn.metrics.confusion_matrix(true_y,pred)
-    plt.figure()
-    a=confusion_matrix(matrix,classes=MusicMLConfig.GENRE_NAMES, title='Confusion matrix')
+    #matrix=sklearn.metrics.confusion_matrix(true_y,pred)
+    #plt.figure()
+    #a=confusion_matrix(matrix,classes=MusicMLConfig.GENRE_NAMES, title='Confusion matrix')
 
 
 def confusion_matrix(cm, classes,
