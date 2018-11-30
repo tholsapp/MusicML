@@ -7,6 +7,16 @@ from config import MusicMLConfig
 log = logging.getLogger(__name__)
 
 
+def convert():
+    log.info("Initializing Data Conversion")
+    os.chdir(MusicMLConfig.FORMATTED_DATA_SRC) # change to raw data directory
+    #for each genre with au audio format
+    for genre_dir in os.listdir(MusicMLConfig.RAW_DATA_SRC):
+        if(os.path.isdir(genre_dir)):
+            print(genre_dir)
+
+
+
 def convert_au_to_wav():
     os.chdir(MusicMLConfig.RAW_DATA_SRC)  # change to raw data directory
 
@@ -36,4 +46,5 @@ def convert_au_to_wav():
                     os.system(f"sox {sox_cmd}")
                 else:
                     log.info(f"{new_file!r} already exists")
+
 

@@ -15,6 +15,16 @@ class MusicMLConfig:
     FEATURE_DATASET_SRC = ROOT_SRC + \
             "/music_ml_backend/ml/data/audio_features.csv"
 
+    TRAINING_SRC = ROOT_SRC + \
+            "/music_ml_backend/resources/data/training"
+
+    VALIDATION_SRC = ROOT_SRC + \
+            "/music_ml_backend/resources/data/validation"
+
+    TESTING_SRC = ROOT_SRC + \
+            "/music_ml_backend/resources/data/testing"
+
+
     FLASK_FEATURE_DATASET_SRC = FEATURE_DATASET_SRC
 
     FLASK_MODEL_SRC =  ROOT_SRC + \
@@ -34,6 +44,18 @@ class MusicMLConfig:
 
 
     # MUSICML SEETINGS
+    GENRE_LABELS = [
+            'blues',
+            'classical',
+            'country',
+            'disco',
+            'hiphop',
+            'jazz',
+            'metal',
+            'pop',
+            'reggae',
+            'rock',
+            ]
 
     GENRE_NAMES = [
             'blues',

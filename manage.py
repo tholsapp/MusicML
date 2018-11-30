@@ -1,19 +1,17 @@
 #!/usr/bin/env python
 
-import os
-import sys
 from configobj import ConfigObj
-from validate import Validator
+import os
 from flask_script import Manager
 import logging
+import sys
+import time
+from validate import Validator
 
 from config import MusicMLConfig
-from music_ml_backend.ml.music_ml import \
-        test_knn, test_rft, test_svc, test_mlp, \
-        extract_and_save_features, test_model, train_and_save_model
-from music_ml_backend.util.setup import convert_au_to_wav
+from music_ml_setup import MusicMLSetup
+from music_ml_backend.classifier.classifier import genre_classifier
 from music_ml_frontend.music_ml import app, init_webapp
-
 
 logging.basicConfig(level=logging.INFO)
 music_ml_log = logging.getLogger(__name__)
@@ -36,40 +34,31 @@ def runserver(*args, **kwargs):
 
 
 @manager.command
-def flask_setup():
-    # convert the raw data into a format we can use
-    convert_au_to_wav()
+def setup():
+    """
+    """
+    t1 = time.time()
+    # sets up project directory structure
+    MusicMLSetup.create_project_structure()
+    # convert raw data
+    # and seperate data into training, validation, and testing
+    MusicMLSetup.convert_and_split_data()
 
-    # extract all features from data
-    extract_and_save_features(
-            MusicMLConfig.FLASK_FEATURE_DATASET_SRC,
-            MusicMLConfig.FORMATTED_DATA_SRC
-            )
+    # Extract features, train, test, and save model
+    classifier = genre_classifier(MusicMLConfig.TRAINING_SRC, MusicMLConfig.TESTING_SRC)
 
-    train_and_save_model(
-            MusicMLConfig.FLASK_MODEL_SRC,
-            MusicMLConfig.FLASK_FEATURE_DATASET_SRC
-            )
+    # Save Model
+    # save(classifier)
 
-
-@manager.command
-def train_model():
-    # convert the raw data into a format we can use
-    convert_au_to_wav()
-
-    # extract all features from data
-    extract_and_save_features(
-            MusicMLConfig.FEATURE_DATASET_SRC,
-            MusicMLConfig.FORMATTED_DATA_SRC
-            )
+    t2 = time.time()
+    et = t2 - t1
+    print(f"Elapsed Time : {et/60:.0f} mins {et%60:.0f} secs")
 
 
 @manager.command
 def test():
-    test_knn(MusicMLConfig.FEATURE_DATASET_SRC)
-    test_rft(MusicMLConfig.FEATURE_DATASET_SRC)
-    test_svc(MusicMLConfig.FEATURE_DATASET_SRC)
-    test_mlp(MusicMLConfig.FEATURE_DATASET_SRC)
+    # Traing and test Model
+    genre_classifier(MusicMLConfig.TRAINING_SRC, MusicMLConfig.TESTING_SRC)
 
 
 if __name__ == "__main__":
