@@ -7,7 +7,6 @@ from os import strerror
 from pathlib import Path
 
 from config import MusicMLConfig
-from music_ml_backend.exceptions.exceptions import AudioException
 from music_ml_backend.resources.audio import Audio
 
 log = logging.getLogger(__name__)
@@ -20,14 +19,14 @@ class AudioManager:
             return Audio(fdir + "/" + fn)
         except FileNotFoundError as e:
             error_message = f"file {fn!r} not found in directory {fdir!r}"
-            raise AudioExcpetion(message=error_message, errors=[e])
+            raise e
 
     @classmethod
     def get_genre_map(cls, genres_src):
         genre_map = {}
 
         log.info(f"get_genre_map : {genres_src}")
-        for genre_name in MusicMLConfig.GENRE_NAMES:
+        for genre_name in MusicMLConfig.GENRE_LABELS:
             current_src = genres_src + "/" + genre_name
             os.chdir(current_src)
             genre_map[genre_name] = []
@@ -44,16 +43,4 @@ class AudioManager:
             return [Audio(fls) for fls in audio_files]
         except FileNotFoundError:
             raise
-
-    @classmethod
-    def save(cls, f, fdir):
-        raise NotImplementedError
-
-    @classmethod
-    def batch_get(cls, fdir, sz):
-        raise NotImplementedError
-
-    @classmethod
-    def batch_save(cls, fls, fdir):
-        raise NotImplementedError
 

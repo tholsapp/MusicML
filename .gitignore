@@ -1,5 +1,6 @@
 .gitignore
 .pytest_cache/
+*DS_STORE*
 
 venv/
 build
@@ -8,9 +9,12 @@ music_ml.egg-info
 __pycache__/
 
 
+*.au
 *.wav
 *.csv
 *.pkl
 
-music_ml_backend/resources/data/raw/genres/*
-music_ml_backend/resources/data/formatted/genres*
+music_ml_backend/resources/data/au_format/*
+music_ml_backend/resources/data/wav_format/*
+music_ml_backend/resources/data/training/*
+music_ml_backend/resources/data/testing/*

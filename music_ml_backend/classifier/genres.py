@@ -1,5 +1,5 @@
 """
-This module preprocesses audio files
+Audio Feature Extractor
 """
 import logging
 import librosa
@@ -22,20 +22,42 @@ def extract_features(
 
     genre_feature_data = []
 
-    duration = 8.0
+    duration = 10.0
     for genre in audio_genre_map:
         for audio in audio_genre_map[genre]:
-            offset = 1.0
+            offset = 0.0
             # increases dataset by factor of 4
             for i in range(2):
-                sample, sr = librosa.load(audio.src, offset=offset,
-                        sr=sample_rate, duration=duration)
+                sample, sr = librosa.load(
+                        audio.src,
+                        offset=offset,
+                        sr=sample_rate,
+                        duration=duration)
                 features = _extract_features(
-                        sample, sample_rate, frame_size, hop_size)
-                genre_feature_data.append((genre, features))
-                offset += 10.0
+                        sample,
+                        sample_rate,
+                        frame_size,
+                        hop_size)
+                genre_feature_data.append(
+                        (genre, features)
+                        )
+                offset += 15.0
             #break
     return genre_feature_data
+
+
+def extract_sample(file_src):
+    sample, sr = librosa.load(
+            file_src,
+            offset=0.0,
+            sr=MusicMLConfig.SAMPLE_RATE,
+            duration=10.0)
+    features = _extract_features(
+                sample,
+                MusicMLConfig.SAMPLE_RATE,
+                MusicMLConfig.FRAME_SIZE,
+                MusicMLConfig.HOP_SIZE)
+    return features
 
 
 def _extract_features(sample, sample_rate, frame_size, hop_size):
