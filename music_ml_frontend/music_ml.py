@@ -6,8 +6,7 @@ from flask_bootstrap import Bootstrap
 from werkzeug.utils import secure_filename
 
 from config import MusicMLConfig
-from music_ml_backend.ml import music_ml
-
+from music_ml_backend.classifier.classifier import make_prediction
 
 ALLOWED_EXTENSIONS = set(['wav'])
 
@@ -22,7 +21,7 @@ def init_webapp():
     Bootstrap(app)
 
     # Set upload location
-    app.config['UPLOAD_FOLDER'] = MusicMLConfig.UPLOAD_DST
+    app.config['UPLOAD_FOLDER'] = MusicMLConfig.FLASK_UPLOAD_DST
     app.config['SECRET_KEY'] = 'abc'
     return app
 
@@ -54,7 +53,7 @@ def index():
 @app.route('/classify/<filename>&<actual_genre>')
 def classify(filename, actual_genre):
     # classify song
-    predicted_genre = music_ml.classify(filename, actual_genre)
+    predicted_genre = make_prediction(filename)
 
     return render_template('classifier.html',
             filename=filename,
